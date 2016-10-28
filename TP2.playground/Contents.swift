@@ -130,7 +130,6 @@ class Character {
 }
 
 class Battle {
-    
     static let sharedInstance : Battle = {
         let instance = Battle(characters: [])
         return instance
