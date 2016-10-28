@@ -183,6 +183,7 @@ let equipe2: [Pokemon] = [p3, p4]
 
 var game = true
 var perdant: [Pokemon] = [Pokemon]()
+var vainqueur: [Pokemon] = [Pokemon]()
 while game {
     
     for i in 0...equipe1.count-1 {
@@ -191,8 +192,12 @@ while game {
     
     if equipe2[0].isDead() && equipe2[1].isDead() {
         perdant = equipe2
+        vainqueur = equipe1
+        game = false
     } else if equipe1[0].isDead() && equipe1[1].isDead() {
         perdant = equipe1
+        vainqueur = equipe2
+        game = false
     }
     
     for j in 0...equipe2.count-1 {
@@ -201,12 +206,15 @@ while game {
     
     if equipe2[0].isDead() && equipe2[1].isDead() {
         perdant = equipe2
+        vainqueur = equipe1
         game = false
     } else if equipe1[0].isDead() && equipe1[1].isDead() {
         perdant = equipe1
+        vainqueur = equipe2
         game = false
     }
     
 }
 
-print(perdant)
+print("Perdant : \(perdant)")
+print("Vainqueur : \(vainqueur)")
