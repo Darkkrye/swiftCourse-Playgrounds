@@ -78,6 +78,7 @@ if let docB: Dictionary = library[3] as? Dictionary {
     print(library[3])
 }
 
+print("\n")
 
 // EXERCICE 2
 class Pokemon: NSObject {
@@ -92,7 +93,7 @@ class Pokemon: NSObject {
     }
     
     func isDead() -> Bool {
-        return self.hp <= 0 ? true : false
+        return self.hp <= 0 /*? true : false*/
     }
     
     func hit(p: Pokemon) {
@@ -118,7 +119,7 @@ class FireP: Pokemon {
     override func hit(p: Pokemon) {
         if p is GrassP {
             super.hit(p: p, efficiency: 2)
-        } else if p is WaterP {
+        } else if p is WaterP || p is FireP {
             super.hit(p: p, efficiency: 0.5)
         } else {
             super.hit(p: p, efficiency: nil)
@@ -132,7 +133,7 @@ class WaterP: Pokemon {
     override func hit(p: Pokemon) {
         if p is FireP {
             super.hit(p: p, efficiency: 2)
-        } else if p is GrassP {
+        } else if p is GrassP || p is WaterP {
             super.hit(p: p, efficiency: 0.5)
         } else {
             super.hit(p: p, efficiency: nil)
@@ -146,7 +147,7 @@ class GrassP: Pokemon {
     override func hit(p: Pokemon) {
         if p is WaterP {
             super.hit(p: p, efficiency: 2)
-        } else if p is FireP {
+        } else if p is FireP || p is GrassP {
             super.hit(p: p, efficiency: 0.5)
         } else {
             super.hit(p: p, efficiency: nil)
@@ -165,7 +166,7 @@ pokemon1.hit(p: pokemon3)
 print(pokemon1)
 print(pokemon2)
 print(pokemon3)
-
+print("\n")
 
 
 
@@ -174,8 +175,8 @@ print(pokemon3)
 
 // FIGHT
 let p1 = FireP(name: "Dracaufeu", hp: 150, atk: 35)
-let p2 = GrassP(name: "Florizarre", hp: 150, atk: 30)
-let p3 = WaterP(name: "Tortank", hp: 150, atk: 33)
+let p2 = WaterP(name: "Tortank", hp: 150, atk: 33)
+let p3 = GrassP(name: "Florizarre", hp: 150, atk: 30)
 let p4 = FireP(name: "Ouisticram", hp: 45, atk: 10)
 
 let equipe1: [Pokemon] = [p1, p2]
@@ -184,10 +185,16 @@ let equipe2: [Pokemon] = [p3, p4]
 var game = true
 var perdant: [Pokemon] = [Pokemon]()
 var vainqueur: [Pokemon] = [Pokemon]()
+var counter = 1
 while game {
     
+    print("\n Round \(counter)")
+    
     for i in 0...equipe1.count-1 {
-        equipe1[i].hit(p: equipe2[i])
+        if !equipe1[i].isDead() && !equipe2[i].isDead() {
+            equipe1[i].hit(p: equipe2[i])
+            print("\(equipe1[i].description) a attaqué \(equipe2[i].description)")
+        }
     }
     
     if equipe2[0].isDead() && equipe2[1].isDead() {
@@ -201,7 +208,10 @@ while game {
     }
     
     for j in 0...equipe2.count-1 {
-        equipe2[j].hit(p: equipe1[j])
+        if !equipe2[j].isDead() && !equipe1[j].isDead() {
+            equipe2[j].hit(p: equipe1[j])
+            print("\(equipe2[j].description) a attaqué \(equipe1[j].description)")
+        }
     }
     
     if equipe2[0].isDead() && equipe2[1].isDead() {
@@ -214,7 +224,39 @@ while game {
         game = false
     }
     
+    counter += 1
 }
 
+print("\n")
 print("Perdant : \(perdant)")
 print("Vainqueur : \(vainqueur)")
+// print("\n")
+
+// CORRECTION
+func battle(teamA: [Pokemon], teamB: [Pokemon]) -> Int {
+    
+    var idxA = 0
+    var idxB = 0
+    
+    while idxA < teamA.count && idxB < teamB.count {
+        teamA[idxA].hit(p: teamB[idxB])
+        
+        if teamB[idxB].isDead() {
+            idxB += 1
+            if idxB >= teamB.count {
+                return 0
+            }
+        }
+        
+        teamB[idxB].hit(p: teamA[idxA])
+        
+        if teamA[idxA].isDead() {
+            idxA += 1
+        }
+    }
+    
+    return 0
+}
+
+let res = battle(teamA: equipe1, teamB: equipe2)
+print("\n\(res)")
