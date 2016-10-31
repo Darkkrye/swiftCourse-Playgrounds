@@ -141,11 +141,17 @@ class Character: NSObject {
     var hitChance: Double
     var weapon: IWeapon
     
+    var currentBullets = 0
+    
     init(name: String, weapon: IWeapon) {
         self.name = name
         self.health = 25000
         self.hitChance = Double(Int(arc4random_uniform(70 - 50)) + 50)
         self.weapon = weapon
+        
+        if let weapon: Gun = self.weapon as? Gun {
+            self.currentBullets = weapon.bullets
+        }
     }
     
     func protect(attackValue: Double) {
@@ -157,7 +163,20 @@ class Character: NSObject {
         let chance = Double(arc4random_uniform(100))
         
         if chance < self.hitChance {
-            c.protect(attackValue: dam)
+            
+            if let _: Gun = self.weapon as? Gun {
+                if self.currentBullets > 0 {
+                    self.currentBullets -= 1
+                    c.protect(attackValue: dam)
+                } else {
+                    // Use gun grip
+                    c.protect(attackValue: dam / 1.5)
+                }
+            } else {
+                c.protect(attackValue: dam)
+            }
+            
+            //c.protect(attackValue: dam)
         }
     }
     
@@ -166,7 +185,11 @@ class Character: NSObject {
     }
     
     override var description: String {
-        return "[Name: \(self.name) - Remaining health: \(self.health) - Weapon: \(self.weapon.toString())]"
+        if let _: Gun = self.weapon as? Gun {
+            return "[Name: \(self.name) - Remaining health: \(round(1000 * self.health)/1000) - Remaining Bullets: \(self.currentBullets) - Weapon: \(self.weapon.toString())]"
+        } else {
+            return "[Name: \(self.name) - Remaining health: \(round(1000 * self.health)/1000) - Weapon: \(self.weapon.toString())]"
+        }
     }
 }
 
@@ -185,7 +208,7 @@ class Battle {
             return
         }
         
-        var idx = 0
+        var idx = 1
         
         while idx < self.characters.count {
             // Select fighter
@@ -196,6 +219,7 @@ class Battle {
             fighter.attack(c: defender)
             if defender.isDead() {
                 deadPeople.append(defender)
+                print("    \(defender.name) is Dead")
                 idx += 1
             }
         }
@@ -211,14 +235,14 @@ class Battle {
     private func saveWinner(w: Character) {
         self.winner = w
         
-        print("The Winner is \(self.winner!)")
+        print("The Winner is \(self.winner!) \n")
     }
     
     private func getRandom(differentFrom c: Character?) -> Character {
         var char = self.characters[Int(arc4random_uniform(UInt32(self.characters.count)))]
         
         if let passedChar = c {
-            while self.deadPeople.contains(char) && char.isEqual(passedChar) {
+            while self.deadPeople.contains(char) || char.isEqual(passedChar) {
                 char = self.characters[Int(arc4random_uniform(UInt32(self.characters.count)))]
             }
             
@@ -293,6 +317,6 @@ for battle in tournament {
 }
 
 // Final Battle
-print("\n")
+print(" ")
 let finalBattle = Battle(characters: winners)
 finalBattle.fight()
